@@ -23,7 +23,6 @@ import (
 	"github.com/Jeffail/benthos/v3/lib/response"
 	"github.com/Jeffail/benthos/v3/lib/stream"
 	"github.com/Jeffail/benthos/v3/lib/stream/manager"
-	"github.com/Jeffail/benthos/v3/lib/types"
 	"github.com/Jeffail/gabs/v2"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
@@ -869,7 +868,7 @@ func TestTypeAPISetResources(t *testing.T) {
 	bmgr, err := bmanager.NewV2(bmanager.NewResourceConfig(), mock.NewManager(), log.Noop(), metrics.Noop())
 	require.NoError(t, err)
 
-	tChan := make(chan types.Transaction)
+	tChan := make(chan message.Transaction)
 	bmgr.SetPipe("feed_in", tChan)
 
 	mgr := manager.New(
@@ -911,7 +910,7 @@ file:
 
 	resChan := make(chan response.Error)
 	select {
-	case tChan <- types.NewTransaction(message.QuickBatch([][]byte{[]byte(`{"id":"first","content":"hello world"}`)}), resChan):
+	case tChan <- message.NewTransaction(message.QuickBatch([][]byte{[]byte(`{"id":"first","content":"hello world"}`)}), resChan):
 	case <-time.After(time.Second * 5):
 		t.Fatal("timed out")
 	}
@@ -930,7 +929,7 @@ file:
 	assert.Equal(t, http.StatusOK, hResponse.Code, hResponse.Body.String())
 
 	select {
-	case tChan <- types.NewTransaction(message.QuickBatch([][]byte{[]byte(`{"id":"second","content":"hello world 2"}`)}), resChan):
+	case tChan <- message.NewTransaction(message.QuickBatch([][]byte{[]byte(`{"id":"second","content":"hello world 2"}`)}), resChan):
 	case <-time.After(time.Second * 5):
 		t.Fatal("timed out")
 	}
